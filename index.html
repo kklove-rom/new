@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<title>MarkIt</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <symbol id="icon-pen" viewBox="0 0 24 24"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></symbol>
+    <symbol id="icon-marker" viewBox="0 0 24 24"><rect fill="currentColor" x="3" y="15" width="18" height="3" rx="1.2"/><path fill="currentColor" d="M5.5 13L12 4l6.5 9H5.5z"/></symbol>
+    <symbol id="icon-eraser" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M16.24 3.56l4.95 4.94c.78.79.78 2.05 0 2.84L12 20.53a4.008 4.008 0 0 1-5.66 0L2.81 17c-.78-.79-.78-2.05 0-2.84l10.6-10.6c.79-.78 2.05-.78 2.83 0zM4.22 15.58l3.54 3.53c.78.79 2.04.79 2.83 0l3.53-3.53-4.95-4.95-4.95 4.95z"/></symbol>
+    <symbol id="icon-draw" viewBox="0 0 24 24"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></symbol>
+    <symbol id="icon-paste" viewBox="0 0 24 24"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></symbol>
+    <symbol id="icon-undo" viewBox="0 0 24 24"><path fill="currentColor" d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></symbol>
+    <symbol id="icon-trash" viewBox="0 0 24 24"><path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></symbol>
+    <symbol id="icon-book" viewBox="0 0 24 24"><path fill="currentColor" d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></symbol>
+    <symbol id="icon-palette" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></symbol>
+    <symbol id="icon-text" viewBox="0 0 24 24"><path fill="currentColor" d="M5 4v3h5.5v12h3V7H19V4H5z"/></symbol>
+    <symbol id="icon-save" viewBox="0 0 24 24"><path fill="currentColor" d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></symbol>
+    <symbol id="icon-export" viewBox="0 0 24 24"><path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></symbol>
+    <symbol id="icon-font-up" viewBox="0 0 24 24"><path fill="currentColor" d="M5.12 14l1.44-4h6.88l1.44 4H17L11.88 2 6.76 14H5.12zm7.58-2H7.3l2.59-6.94L14.7 12zM19 15v-3h-2v3h-3v2h3v3h2v-3h3v-2h-3z"/></symbol>
+    <symbol id="icon-font-down" viewBox="0 0 24 24"><path fill="currentColor" d="M5.12 14l1.44-4h6.88l1.44 4H17L11.88 2 6.76 14H5.12zm7.58-2H7.3l2.59-6.94L14.7 12zM16 19h6v-2h-6v2z"/></symbol>
+  </defs>
+</svg>
+
+<!-- ══════════ HOME VIEW (首页) ══════════ -->
+<div id="home-view">
+
+<div id="app">
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div id="sidebar-header">
+    <div id="logo">MarkIt</div>
+    <button id="btn-add-folder" title="新建文件夹">+</button>
+  </div>
+  <div class="sidebar-section">文件夹</div>
+  <div id="folder-list"></div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <div id="topbar-title">未归档</div>
+    <div id="topbar-actions">
+      <button class="tb-btn" id="btn-new" title="新建笔记">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+      <button class="tb-btn" id="btn-search" title="搜索">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button class="tb-btn" id="btn-sort" title="排序">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
+      </button>
+      <button class="tb-btn" id="btn-select" title="选择">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="4" height="4" rx="1"/><rect x="3" y="11" width="4" height="4" rx="1"/><rect x="3" y="17" width="4" height="4" rx="1"/><line x1="10" y1="7" x2="21" y2="7"/><line x1="10" y1="13" x2="21" y2="13"/><line x1="10" y1="19" x2="21" y2="19"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- SEARCH BAR -->
+  <div id="search-bar">
+    <input id="search-input" placeholder="搜索笔记名称…" autocomplete="off"/>
+    <button id="search-clear">✕</button>
+  </div>
+  <div id="search-results-label"></div>
+
+  <!-- SELECT BANNER -->
+  <div id="select-banner">
+    <span id="select-info">已选 0 项</span>
+    <div id="select-actions">
+      <button class="sel-btn" id="btn-select-all">全选</button>
+      <button class="sel-btn" id="btn-delete-selected">删除</button>
+      <button class="sel-btn" id="btn-cancel-select">取消</button>
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div id="notes-area">
+    <div id="notes-grid"></div>
+  </div>
+</div>
+
+</div>
+
+<!-- SORT DROPDOWN -->
+<div id="sort-dropdown">
+  <button data-sort="newest">从新到旧</button>
+  <button data-sort="oldest">从旧到新</button>
+</div>
+
+<!-- FOLDER CONTEXT MENU -->
+<div class="folder-ctx-menu" id="folder-ctx-menu">
+  <button id="fctx-rename">重命名</button>
+  <button id="fctx-delete" class="danger">删除文件夹</button>
+</div>
+
+<!-- NOTE CONTEXT MENU -->
+<div id="note-ctx-menu">
+  <button id="nctx-restore" style="display:none">恢复</button>
+  <button id="nctx-rename">重命名</button>
+  <button id="nctx-move">移动至 ›</button>
+  <button id="nctx-export">导出</button>
+  <div class="ctx-sep"></div>
+  <button id="nctx-delete" class="danger">删除</button>
+</div>
+
+<!-- MOVE SUBMENU -->
+<div id="move-submenu"></div>
+
+<!-- RENAME MODAL -->
+<div class="modal-overlay" id="rename-modal">
+  <div class="modal-box">
+    <div class="modal-title" id="rename-modal-title">重命名笔记</div>
+    <input class="modal-input" id="rename-input" type="text" autocomplete="off"/>
+    <div class="modal-row">
+      <button class="btn-modal-cancel" id="rename-cancel">取消</button>
+      <button class="btn-modal-ok" id="rename-ok">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW NOTE MODAL -->
+<div class="modal-overlay" id="new-note-modal">
+  <div class="modal-box">
+    <div class="modal-title">新建笔记</div>
+    <div class="modal-sub">为你的新笔记起个名字</div>
+    <input class="modal-input" id="new-note-input" type="text" autocomplete="off"/>
+    <div class="modal-row">
+      <button class="btn-modal-cancel" id="new-note-cancel">取消</button>
+      <button class="btn-modal-ok" id="new-note-ok">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD FOLDER MODAL -->
+<div class="modal-overlay" id="add-folder-modal">
+  <div class="modal-box">
+    <div class="modal-title">新建文件夹</div>
+    <input class="modal-input" id="add-folder-input" type="text" autocomplete="off" placeholder="文件夹名称"/>
+    <div class="modal-row">
+      <button class="btn-modal-cancel" id="add-folder-cancel">取消</button>
+      <button class="btn-modal-ok" id="add-folder-ok">创建</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal-box">
+    <div class="modal-title" id="delete-modal-title">删除笔记</div>
+    <div class="modal-sub" id="delete-modal-sub">将移入【最近删除】，3 天后自动清除。</div>
+    <div class="modal-row">
+      <button class="btn-modal-cancel" id="delete-cancel">取消</button>
+      <button class="btn-modal-ok" id="delete-ok" style="background:#c42b1c">删除</button>
+    </div>
+  </div>
+</div>
+
+</div>
+<!-- ══════════ /HOME VIEW ══════════ -->
+
+<!-- ══════════ EDITOR VIEW (笔记内页) ══════════ -->
+<div id="editor-view" class="hidden">
+
+<!-- TITLE BAR -->
+<div id="titlebar">
+  <div id="titlebar-dots">
+    <span title="返回首页" style="background:#ff5f57"></span>
+    <span title="返回首页" style="background:#febc2e"></span>
+    <span title="返回首页" style="background:#28c840"></span>
+  </div>
+  <div id="titlebar-title">文档 — MarkIt</div>
+  <div id="titlebar-actions">
+    <button id="btn-reading-mode">
+      <svg width="12" height="12"><use href="#icon-book"/></svg>
+      阅读
+    </button>
+  </div>
+</div>
+
+<!-- RIBBON -->
+<div id="main-content">
+  <div id="ribbon">
+    <!-- Mode -->
+    <button class="rb-btn active" id="btn-text" title="文本模式"><svg><use href="#icon-text"/></svg></button>
+    <button class="rb-btn" id="btn-draw" title="做题模式"><svg><use href="#icon-draw"/></svg></button>
+    <div class="rb-divider"></div>
+    <!-- Zoom font scale -->
+    <div id="fs-wrap">
+      <button class="fs-btn" id="btn-font-out" title="缩小字体 (Ctrl+-)">
+        <svg width="16" height="16" viewBox="0 0 24 24"><use href="#icon-font-down"/></svg>
+      </button>
+      <button class="fs-btn" id="btn-font-in" title="放大字体 (Ctrl++)">
+        <svg width="16" height="16" viewBox="0 0 24 24"><use href="#icon-font-up"/></svg>
+      </button>
+    </div>
+    <!-- Font size -->
+    <div id="font-size-wrap">
+      <button id="fs-down" title="缩小字体">A<sup style="font-size:8px">−</sup></button>
+      <input type="number" id="font-size-input" value="16" min="8" max="72" title="字号"/>
+      <button id="fs-up" title="放大字体">A<sup style="font-size:8px">+</sup></button>
+    </div>
+    <div class="rb-divider"></div>
+    <!-- Actions -->
+    <button class="rb-btn" id="btn-paste" title="粘贴"><svg><use href="#icon-paste"/></svg></button>
+    <button class="rb-btn" id="btn-undo" title="撤销"><svg><use href="#icon-undo"/></svg></button>
+    <button class="rb-btn" id="btn-save" title="保存"><svg><use href="#icon-save"/></svg></button>
+    <button class="rb-btn" id="btn-export" title="导出"><svg><use href="#icon-export"/></svg></button>
+    <button class="rb-btn" id="btn-clear" title="清空"><svg><use href="#icon-trash"/></svg></button>
+  </div>
+
+  <!-- RULER -->
+  <div id="ruler-row">
+    <div id="ruler">
+      <div id="ruler-margin-left"></div>
+      <div id="ruler-margin-right"></div>
+      <div id="ruler-inner" id="ruler-ticks"></div>
+    </div>
+  </div>
+
+  <!-- DOCUMENT AREA -->
+  <div id="doc-area">
+    <div id="page-container">
+      <div id="page-margin-top"></div>
+      <div id="page-margin-bottom"></div>
+      <div id="text-area-wrap">
+        <div id="text-editor" contenteditable="true"
+             data-placeholder="在此粘贴或输入文字…"
+             spellcheck="false"></div>
+      </div>
+      <div id="canvas-wrapper">
+        <canvas id="c"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATUS BAR -->
+<div id="statusbar">
+  <span id="word-count">0 字</span>
+  <span class="status-sep">|</span>
+  <span id="status-mode">文本模式</span>
+  <span class="status-sep">|</span>
+  <span>MarkIt © 2026</span>
+</div>
+
+<!-- EXIT READING -->
+<button id="exit-reading">
+  <svg width="12" height="12" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+  退出阅读
+</button>
+
+<!-- PEN BALL -->
+<div id="pen-ball">
+  <div id="pen-trigger"><svg width="20" height="20"><use href="#icon-draw"/></svg></div>
+  <div id="pen-panel">
+    <button class="pen-icon-btn active" data-tool="pen"><svg><use href="#icon-pen"/></svg></button>
+    <button class="pen-icon-btn" data-tool="marker"><svg><use href="#icon-marker"/></svg></button>
+    <button class="pen-icon-btn" data-tool="eraser"><svg><use href="#icon-eraser"/></svg></button>
+    <div class="panel-rule"></div>
+    <div id="size-track"><input type="range" id="size-slider" min="1" max="50" value="3"/></div>
+    <div class="panel-rule"></div>
+    <div id="color-section">
+      <div id="color-palette">
+        <div class="color-row" id="color-row-1"></div>
+        <div class="color-row" id="color-row-2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DIALOG -->
+<div id="confirm-overlay">
+  <div id="confirm-box">
+    <h3>清空内容</h3>
+    <p>所有内容将被删除，此操作不可恢复。</p>
+    <div class="btn-row">
+      <button id="btn-cancel">取消</button>
+      <button id="btn-confirm">清空</button>
+    </div>
+  </div>
+</div>
+
+<!-- COLOR PICKER -->
+<div id="color-picker-modal">
+  <div id="color-picker-box">
+    <h3>自定义颜色</h3>
+    <div id="color-preview"></div>
+    <input type="text" id="color-input" placeholder="#FF5733" maxlength="7"/>
+    <div class="btn-row">
+      <button id="color-btn-cancel">取消</button>
+      <button id="color-btn-confirm">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT DIALOG -->
+<div id="export-modal">
+  <div id="export-box">
+    <h3>导出文档</h3>
+    <input type="text" id="export-filename" value="MarkIt文档" maxlength="80" placeholder="文件名"/>
+    <div id="export-formats">
+      <label><input type="radio" name="export-format" value="docx" checked/><span>DOCX</span></label>
+      <label><input type="radio" name="export-format" value="pdf"/><span>PDF 专业版</span></label>
+    </div>
+    <div class="btn-row">
+      <button id="export-btn-cancel">取消</button>
+      <button id="export-btn-confirm">导出</button>
+    </div>
+  </div>
+</div>
+
+</div>
+<!-- ══════════ /EDITOR VIEW ══════════ -->
+
+<div id="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
