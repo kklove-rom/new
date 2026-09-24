@@ -110,10 +110,12 @@ document.getElementById('btn-font-out').addEventListener('click', ()=> applyFont
 
 // ── WORD COUNT ──
 function updateWordCount(){
-  const text = textEditor.innerText || '';
-  const chinese = (text.match(/[一-龥]/g)||[]).length;
-  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-  wordCountEl.textContent = chinese > 0 ? `${chinese} 字` : `${words} 词`;
+  const text = textEditor.innerText || textEditor.textContent || '';
+  // 中文按字计数；英文按单词正则匹配，不按空格切分——
+  // 复制来的文本常夹零宽空格(U+200B)等特殊空白，按空格切会把整段算成一两个词
+  const chinese = (text.match(/[一-龥㐀-䶿〇]/g)||[]).length;
+  const english = (text.match(/[A-Za-z0-9]+(?:['’\-][A-Za-z0-9]+)*/g)||[]).length;
+  wordCountEl.textContent = `中文 ${chinese} 字｜英文 ${english} 词`;
 }
 let wcTimer = null;
 textEditor.addEventListener('input', ()=>{
